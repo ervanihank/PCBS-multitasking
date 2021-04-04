@@ -21,4 +21,4 @@ and then followed by a 500 ms pause. The intertrial interval lasted 800 ms.
 
 The response time is recorded.
 
-![Schematic representation of the task-switching](picture.jpg).
+![task-switching](picture.jpg).
