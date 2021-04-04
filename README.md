@@ -1,7 +1,7 @@
 ### Multi-tasking Experiment
 
 - Github Repository: [PCBS](https://github.com/ervanihank/PCBS-multitasking).
-- The experiment is the replication of the original study: https://bmcpsychology.biomedcentral.com/articles/10.1186/2050-7283-1-18
+- The experiment is the replication of the original study:  [https://bmcpsychology.biomedcentral.com/articles/10.1186/2050-7283-1-18 ]
 - The aim of the project: Creating a psychological experiment that compares the multi-tasking skills in men and women. 
 - The experiment include a succession of trials in which the performance of women and men in a task-switching paradigm are tested. 
 **In the shape task**, participants had to respond to the shape of imperative stimuli (diamonds and rectangles required a left and right response, respectively).
@@ -21,4 +21,4 @@ and then followed by a 500 ms pause. The intertrial interval lasted 800 ms.
 
 The response time is recorded.
 
-![task-switching](picture.jpg).
+![task-switching](picture.jpg)
