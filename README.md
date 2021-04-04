@@ -20,4 +20,5 @@ When an imperative stimulus (one of the four shown in Figure 2b) appeared (they 
 and then followed by a 500 ms pause. The intertrial interval lasted 800 ms.
 
 The response time is recorded.
-![alt text](picture.jpg)
+
+![Schematic representation of the task-switching](picture.jpg).
