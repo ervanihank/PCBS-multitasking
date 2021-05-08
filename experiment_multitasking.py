@@ -1,6 +1,6 @@
 # Are women better than men at multi-tasking? #
 # This is a replication of Stoet et al 2013 experiment
-# There are 3 blocks in the experiment (Block1=Shape Task Block, Block1= Filling Task Block, Bloc3= Mixed Task Block)
+# There are 3 blocks in the experiment (Shape Block, Filling Block, Mixed Block)
 
 ##Necessary imports
 import random
@@ -8,7 +8,7 @@ import pygame
 import sys
 
 ##Important Parameters
-n_trials_per_block=4
+n_trials_per_block=4 ##need to be multiple of 4 since there are 4 type of stimulus and they need to be presented equally! (see Stoet et al 2013)
 multitasking_data = 'multitasking_data.csv'
 screenW, screenH=800, 800
 center_x, center_y = screenW // 2, screenH // 2
@@ -37,6 +37,7 @@ mixed_task_instruct="        MIXED TASK\n"\
     "\n\nIf the stimulus appeared in the upper half \n you have to carry out the shape task\n"\
     "If the stimulus appeared in the bottom half \n you have to carry out the filling task"\
     "\n\n                         Press a key now to start!"
+
 
 def create_window(width_window,height_window):
     screen = pygame.display.set_mode((width_window,height_window),pygame.FULLSCREEN)
@@ -67,18 +68,20 @@ def display_instruction(screen, text, pos, font, color=pygame.Color('black')):
         y += word_height  
         pygame.display.flip()
     
-def display_feedback(screen, x, y,feedback_message):
+def display_feedback(screen, pos, feedback_message,duration):
     clear_screen(screen)
+    x, y = pos
     myfont = pygame.font.SysFont('Courier',screenW//20,bold=True)
     line = myfont.render(feedback_message, 1, pygame.Color('black'))
     text_width=line.get_width()
     screen.blit(line, (x-(text_width//2), y))
     pygame.display.flip()
-    pygame.time.delay(1000)
+    pygame.time.delay(duration)
     clear_screen(screen)
     pygame.time.delay(500)  
 
-def display_frame(screen,x,y):
+def display_frame(screen,pos):
+	x, y = pos
 	pygame.draw.rect(screen, (0,0,0), (x-(frame_width//2), y-(frame_height//2), frame_width, frame_height), 3)
 	pygame.draw.line(screen, (0,0,0), (x-(frame_width//2), center_y), (x + (frame_width//2), center_y), 3)
 	myfont = pygame.font.SysFont('Courier',screenW//20,bold=True)
@@ -99,16 +102,16 @@ def display_stimulus(stimulus_type, stimulus_position):
     diamond2=pygame.image.load("diamond_two.png")
     if stimulus_type=="rect_3":
         stimulus_selected=pygame.transform.scale(rect3,(stimulus_width,stimulus_height))
-    if stimulus_type=="rect_2":
+    elif stimulus_type=="rect_2":
         stimulus_selected=pygame.transform.scale(rect2,(stimulus_width,stimulus_height))
-    if stimulus_type=="diamond_2":
+    elif stimulus_type=="diamond_2":
         stimulus_selected=pygame.transform.scale(diamond2,(stimulus_width,stimulus_height))
-    if stimulus_type=="diamond_3":
+    elif stimulus_type=="diamond_3":
         stimulus_selected=pygame.transform.scale(diamond3,(stimulus_width,stimulus_height))
     stimulus=stimulus_selected.get_rect()
     if stimulus_position =="down":
         stimulus_coordinate_y=center_y + frame_height//4 - stimulus_height//2
-    elif stimulus_position =="up":
+    else :
         stimulus_coordinate_y=center_y - frame_height//4 - stimulus_height//2
     screen.blit(stimulus_selected,((center_x)-(stimulus_width//2), stimulus_coordinate_y))
     pygame.display.flip()
@@ -149,41 +152,28 @@ def measure_reaction_time(max_response_delay=4000,quit_button=pygame.K_q):
     
     return (reaction_time, pressed_key)
 
-def measure_accuracy(stimulus_type, pressed_key, stimulus_position):
-    if stimulus_position=="up":
-        if pressed_key == "leftKey":
-            if stimulus_type =="diamond_3" or stimulus_type=="diamond_2":
-                accuracy=1 
-            elif stimulus_type=="rect_3" or stimulus_type=="rect_2":
-                accuracy=0
-        elif pressed_key == "rightKey" :
-            if stimulus_type =="diamond_3" or stimulus_type=="diamond_2":
-                accuracy=0
-            elif stimulus_type== "rect_3" or stimulus_type=="rect_2":
-                accuracy=1
-        elif pressed_key=="NoResp":
-            accuracy=None
-    elif stimulus_position== "down":
-        if pressed_key == "leftKey":
-            if stimulus_type =="rect_3" or stimulus_type=="diamond_3":
-                accuracy=0
-            elif stimulus_type=="rect_2" or stimulus_type=="diamond_2":
-                accuracy=1
-        elif pressed_key == "rightKey" :
-            if stimulus_type=="rect_3" or stimulus_type=="diamond_3":
-                accuracy=1
-            elif stimulus_type=="rect_2" or stimulus_type=="diamond_2":
-                accuracy=0
-        elif pressed_key=="NoResp":
-            accuracy=None
+expected_responses = { ('up', 'diamond_3'): "leftKey" ,
+            ('up', 'diamond_2'): "leftKey" ,
+            ('up', 'rect_3'): "rightKey",
+            ('up', 'rect_2'): "rightKey",
+            ('down', 'rect_2'): "leftKey" ,
+            ('down', 'diamond_2'): "leftKey" ,
+            ('down', 'rect_3'): "rightKey",
+            ('down', 'diamond_3'): "rightKey"}
+
+def check_accuracy_and_display_feedback(key_pressed, conditions, mapping):
+    if key_pressed == "NoResp": 
+        accuracy = None
+    elif mapping[conditions] == key_pressed:
+    	accuracy=1
+    else:
+    	accuracy=0
     if accuracy==0:
-        display_feedback(screen, center_x, center_y,"That was the wrong answer")
+        display_feedback(screen, (center_x, center_y),"That was the wrong answer",1000)
     elif accuracy== None:
-        display_feedback(screen, center_x, center_y,"Time is up!")
-
-
-    return (accuracy)
-
+        display_feedback(screen, (center_x, center_y),"Time is up!",1000)
+    return accuracy
+         
 def save_data(stim_type_shapeblock,ac_shape,rt_shape,stim_type_fillingblock,ac_filling,rt_filling,task_mixedblock,stim_type_mixedblock,ac_mixed,rt_mixed, filename):
     with open(filename, 'wt') as f:
         f.write('stim_type_shapeblock,AC_shape,RT_shape,stim_type_fillingblock,AC_filling,RT_filling,task_mixedblock,stim_type_mixedblock,AC_mixed,RT_mixed\n')
@@ -204,98 +194,113 @@ display_instruction(screen, general_instruct, (center_x, center_y), instruction_
 wait_for_keypress()
 pygame.time.delay(600)
 
-## Block_1_(Pure)_Shape_Block ##
+## Shape_Block ##
 
-stim_type_shapeblock= []
-rt_shape = []
-ac_shape = []
+def display_and_get_data_for_shape_block():
 
-display_instruction(screen, shape_task_instruct, (center_x, center_y), instruction_font)
-wait_for_keypress()
-pygame.time.delay(600)
+	stim_type_shapeblock= []
+	rt_shape = []
+	ac_shape = []
 
-for i in range(n_trials_per_block):
-	stimulus_type=trials[i]
+	display_instruction(screen, shape_task_instruct, (center_x, center_y), instruction_font)
+	wait_for_keypress()
+	pygame.time.delay(600)
 
-	clear_screen(screen)
-	display_frame(screen,center_x,center_y)
-	pygame.time.delay(800)
-	display_stimulus(stimulus_type, "up")
+	for i in range(n_trials_per_block):
+		stimulus_type=trials[i]
 
-	[reaction_time,pressed_key] = measure_reaction_time()
-	accuracy= measure_accuracy(stimulus_type,pressed_key,"up")
+		clear_screen(screen)
+		display_frame(screen,(center_x,center_y))
+		pygame.time.delay(800)
+		display_stimulus(stimulus_type, "up")
 
-	rt_shape.append(reaction_time)
-	ac_shape.append(accuracy)
-	stim_type_shapeblock.append(stimulus_type)
+		[reaction_time,pressed_key] = measure_reaction_time()
+		accuracy= check_accuracy_and_display_feedback(pressed_key, ("up", str(stimulus_type)), expected_responses)
 
-	print(stimulus_type, reaction_time, accuracy)
+		rt_shape.append(reaction_time)
+		ac_shape.append(accuracy)
+		stim_type_shapeblock.append(stimulus_type)
 
-## Block2_(Pure)_Filling_Block ##
+		print(stimulus_type, reaction_time, accuracy)
 
-stim_type_fillingblock= []
-rt_filling = []
-ac_filling = []
+	return (stim_type_shapeblock,ac_shape, rt_shape)
 
-display_instruction(screen, filling_task_instruct, (center_x, center_y), instruction_font)
-wait_for_keypress()
-pygame.time.delay(600)
+## Filling_Block ##
 
-for i in range(n_trials_per_block):
-	stimulus_type=trials[i]
+def display_and_get_data_for_filling_block():
 
-	clear_screen(screen)
-	display_frame(screen,center_x,center_y)
-	pygame.time.delay(800)
-	display_stimulus(stimulus_type, "down")
+	stim_type_fillingblock= []
+	rt_filling = []
+	ac_filling = []
 
-	[reaction_time,pressed_key] = measure_reaction_time()
-	accuracy= measure_accuracy(stimulus_type,pressed_key,"down")
+	display_instruction(screen, filling_task_instruct, (center_x, center_y), instruction_font)
+	wait_for_keypress()
+	pygame.time.delay(600)
 
-	rt_filling.append(reaction_time)
-	ac_filling.append(accuracy)
-	stim_type_fillingblock.append(stimulus_type)
+	for i in range(n_trials_per_block):
+		stimulus_type=trials[i]
 
-	print(stimulus_type, reaction_time, accuracy)
+		clear_screen(screen)
+		display_frame(screen,(center_x,center_y))
+		pygame.time.delay(800)
+		display_stimulus(stimulus_type, "down")
 
-## Block3_Mixed_Block ##
+		[reaction_time,pressed_key] = measure_reaction_time()
+		accuracy= check_accuracy_and_display_feedback(pressed_key, ("down", str(stimulus_type)), expected_responses)
 
-positions= (n_trials_per_block//2) * ["up","down"]
-random.shuffle(positions)
+		rt_filling.append(reaction_time)
+		ac_filling.append(accuracy)
+		stim_type_fillingblock.append(stimulus_type)
 
-task_mixedblock=[]
-stim_type_mixedblock=[]
-rt_mixed = []
-ac_mixed = []
+		print(stimulus_type, reaction_time, accuracy)
 
-display_instruction(screen, mixed_task_instruct, (center_x, center_y), instruction_font)
-wait_for_keypress()
-pygame.time.delay(600)
+	return (stim_type_fillingblock,ac_filling,rt_filling)
 
-for c in range(n_trials_per_block):
-	stimulus_type=trials[c]
-	stimulus_position= positions[c]
+## Mixed_Block ##
 
-	if stimulus_position== "up":
-		task="shape"
-	elif stimulus_position== "down":
-		task="filling"
+def display_and_get_data_for_mixed_block():
 
-	clear_screen(screen)
-	display_frame(screen,center_x,center_y)
-	pygame.time.delay(800)
-	display_stimulus(stimulus_type, stimulus_position)
+	positions= (n_trials_per_block//2) * ["up","down"]
+	random.shuffle(positions)
 
-	[reaction_time,pressed_key] = measure_reaction_time()
-	accuracy= measure_accuracy(stimulus_type,pressed_key,stimulus_position)
+	task_mixedblock=[]
+	stim_type_mixedblock=[]
+	rt_mixed = []
+	ac_mixed = []
 
-	task_mixedblock.append(task)
-	stim_type_mixedblock.append(stimulus_type)
-	rt_mixed.append(reaction_time)
-	ac_mixed.append(accuracy)
+	display_instruction(screen, mixed_task_instruct, (center_x, center_y), instruction_font)
+	wait_for_keypress()
+	pygame.time.delay(600)
 
-	print(stimulus_type, reaction_time, accuracy)
+	for c in range(n_trials_per_block):
+		stimulus_type=trials[c]
+		stimulus_position= positions[c]
+
+		if stimulus_position== "up":
+			task="shape"
+		elif stimulus_position== "down":
+			task="filling"
+
+		clear_screen(screen)
+		display_frame(screen,(center_x,center_y))
+		pygame.time.delay(800)
+		display_stimulus(stimulus_type, stimulus_position)
+
+		[reaction_time,pressed_key] = measure_reaction_time()
+		accuracy= check_accuracy_and_display_feedback(pressed_key, (str(stimulus_position), str(stimulus_type)), expected_responses)
+
+		task_mixedblock.append(task)
+		stim_type_mixedblock.append(stimulus_type)
+		rt_mixed.append(reaction_time)
+		ac_mixed.append(accuracy)
+
+		print(stimulus_type, reaction_time, accuracy)
+
+	return (task_mixedblock,stim_type_mixedblock,ac_mixed,rt_mixed,multitasking_data)
+
+[stim_type_shapeblock,ac_shape, rt_shape] = display_and_get_data_for_shape_block()
+[stim_type_fillingblock,ac_filling,rt_filling] = display_and_get_data_for_filling_block()
+[task_mixedblock,stim_type_mixedblock,ac_mixed,rt_mixed,multitasking_data] = display_and_get_data_for_mixed_block()
 
 save_data(stim_type_shapeblock,ac_shape, rt_shape,stim_type_fillingblock,ac_filling,rt_filling,task_mixedblock,stim_type_mixedblock,ac_mixed,rt_mixed,multitasking_data)
-
 pygame.quit()
