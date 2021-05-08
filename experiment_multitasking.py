@@ -16,6 +16,7 @@ frame_height= 3 * (screenH // 4)
 frame_width=  2 * (frame_height//3)
 stimulus_width,stimulus_height=screenW//5 , screenH//5
 
+
 ##instruction texts
 general_instruct="In the following you will respond to various figures: "\
 	"\n   Diamonds and Rectangles with a filling of 2 or 3 dots."\
@@ -136,10 +137,10 @@ def measure_reaction_time(max_response_delay=4000,quit_button=pygame.K_q):
 
     while not response_delay_elapsed and pressed_key is None:
         for ev in pygame.event.get():
-            if ev.key == quit_button:
-            	pygame.quit()
-            	sys.exit()
             if ev.type == pygame.KEYDOWN:
+                if ev.key== quit_button:
+                    pygame.quit()
+                    sys.exit()
                 if ev.key == pygame.K_LEFT:
                     reaction_time = pygame.time.get_ticks() - t0
                     pressed_key= "leftKey"  
