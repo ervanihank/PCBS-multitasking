@@ -10,7 +10,7 @@ import sys
 ##Important Parameters
 n_trials_per_block=4 ##need to be multiple of 4 since there are 4 type of stimulus and they need to be presented equally! (see Stoet et al 2013)
 multitasking_data = 'multitasking_data.csv'
-screenW, screenH=800, 800
+screenW, screenH=600, 600
 center_x, center_y = screenW // 2, screenH // 2
 frame_height= 3 * (screenH // 4)
 frame_width=  2 * (frame_height//3)
