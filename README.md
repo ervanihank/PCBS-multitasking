@@ -16,9 +16,20 @@ task, and when it appeared in the bottomhalf of the frame, labeled “filling”
 In the mixed block, task-switch trials were those following a trial of the alternative task, and task-repeat trials were those following the same task.
 
 Procedure:
-When an imperative stimulus (one of the four shown in Figure 2b) appeared (they were chosen at random by the software), participants had up to 4 seconds to respond. The imperative stimulus disappeared following a response or following the 4 seconds in case no response was given. Incorrect responses (or failures to respond) were followed by a 5 seconds lasting reminder of the stimulus-response mapping,
-and then followed by a 500 ms pause. The intertrial interval lasted 800 ms.
+When an imperative stimulus (one of the four figure shown in the Figure-a) appeared (they were chosen at random), participants had time pressure to respond. The imperative stimulus disappeared following a response or following the stated seconds in case no response was given. Incorrect responses (or failures to respond) were followed by a feedback. Then the new trial begin. Before starting to each block a new instruction is given.  
 
-The response time is recorded.
+![Figure a](https://github.com/ervanihank/PCBS-multitasking/blob/master/picture.png)
 
-![task-switching picture](images/picture.png)
+The response time, accuracy, stimulus type and task type are recorded.
+
+
+### What I would have done differently given more time
+
+1- I would definietely run subjects and analyse their data. It would be really interesting to replicate the findings!
+2- I would make the code cleaner: Especially the measure_reaction_time and save_data functions
+3- I would make the code more flexible so that you can chance it easily
+4- I would add a reminder of instructions into the feedback, which is done in the original experiment. But since it was painful to write any instruction by using pygame I couldnt find time to do it.
+5- I would arrange my code so that it can record the task-switch and task-repeat trials automaticaly into the save file, so that hte analysis might be easier to conduct. 
+
+Erva 12.05.2021
+
